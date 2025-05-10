@@ -10,10 +10,15 @@ from nltk.stem import WordNetLemmatizer
 model = joblib.load("resume_classifier_model.pkl")
 vectorizer = joblib.load("tfidf_vectorizer.pkl")
 
-# NLP setup
-nltk.download('stopwords')
-nltk.download('punkt')
-nltk.download('wordnet')
+import os
+
+# Setup NLTK download directory for Streamlit Cloud
+nltk_data_dir = os.path.join(os.path.expanduser("~"), "nltk_data")
+nltk.download('stopwords', download_dir=nltk_data_dir)
+nltk.download('punkt', download_dir=nltk_data_dir)
+nltk.download('wordnet', download_dir=nltk_data_dir)
+nltk.data.path.append(nltk_data_dir)
+
 stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
 
