@@ -3,6 +3,7 @@ import joblib
 import nltk
 import re
 import fitz  # PyMuPDF for PDFs
+from nltk.tokenize import TreebankWordTokenizer
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
@@ -12,12 +13,20 @@ vectorizer = joblib.load("tfidf_vectorizer.pkl")
 
 import os
 
-# Setup NLTK download directory for Streamlit Cloud
 nltk_data_dir = os.path.join(os.path.expanduser("~"), "nltk_data")
-nltk.download('stopwords', download_dir=nltk_data_dir)
-nltk.download('punkt', download_dir=nltk_data_dir)
-nltk.download('wordnet', download_dir=nltk_data_dir)
+
+# Only download if not already present
+if not os.path.exists(os.path.join(nltk_data_dir, 'corpora/stopwords')):
+    nltk.download('stopwords', download_dir=nltk_data_dir)
+
+if not os.path.exists(os.path.join(nltk_data_dir, 'tokenizers/punkt')):
+    nltk.download('punkt', download_dir=nltk_data_dir)
+
+if not os.path.exists(os.path.join(nltk_data_dir, 'corpora/wordnet')):
+    nltk.download('wordnet', download_dir=nltk_data_dir)
+
 nltk.data.path.append(nltk_data_dir)
+
 
 stop_words = set(stopwords.words('english'))
 lemmatizer = WordNetLemmatizer()
@@ -26,7 +35,8 @@ lemmatizer = WordNetLemmatizer()
 def clean_text(text):
     text = re.sub(r'[^a-zA-Z]', ' ', text)
     text = text.lower()
-    tokens = nltk.word_tokenize(text)
+    tokenizer = TreebankWordTokenizer()
+    tokens = tokenizer.tokenize(text)
     tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
     return ' '.join(tokens)
 
